@@ -56,24 +56,18 @@ pipeline {
 				sh 'docker push dskdockerid/santoshinsuranceimage:latest'
 			}
 		}
-	    stage('Approve - Deployment to Kubernetes Cluster'){
-            steps{
-                
-                //----------------send an approval prompt-----------
-                script {
-                   env.APPROVED_DEPLOY = input message: 'User input required Choose "yes" | "Abort"'
-                       }
-                //-----------------end approval prompt------------
-            }
-        }
-        stage('Deploy to Kubernetes Cluster') {
-            steps {
-		script {
-		sshPublisher(publishers: [sshPublisherDesc(configName: 'kubecluster', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'kubectl apply -f  k8-insurance.yml', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '.', remoteDirectorySDF: false, removePrefix: '', 
-		sourceFiles: '*.yml')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
-		}
-		}
-		}
-}
+	   stage(' copy files to ansible hosts') {
+           steps {
+	sh 'cp  /home/devopsadmin/workspace/Insurance-Project-Pipeline/*.yml  /etc/ansible'
+	}
+	}
+	
+	    stage('deploymnet from ansible playbook to k8 cluster') {
+           steps {
+               ansiblePlaybook installation: 'ansible', inventory: '/etc/ansible/hosts', playbook: '/etc/ansible/insurance-ansible-playbook.yml'
+           }
+	    }
+	    
+    }
 }
 
