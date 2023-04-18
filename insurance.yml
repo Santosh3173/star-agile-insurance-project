@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: santosh-insurance-deploy
+  name: santosh-insurance-proj-deploy
   labels:
     app: santosh-insurance-app
 spec:
